@@ -489,8 +489,8 @@ string guess_internal_codeset()
 
     if (codeset == "EUC") {
         const struct {
-            char* key;
-            char* codeset;
+            const char* key;
+            const char* codeset;
         } euc_db[] = {
             {"ja",    "EUC-JP"},
             {"ko",    "EUC-KR"},
@@ -510,8 +510,8 @@ string guess_internal_codeset()
         codeset = "US-ASCII";
 
     const struct {
-        char* alias;
-        char* real_name;
+        const char* alias;
+        const char* real_name;
     } alias_db[] = {
         {"JIS",  "ISO-2022-JP"},
         {"JIS7", "ISO-2022-JP"},
@@ -1009,8 +1009,7 @@ gint32 load_image(const string& filename)
     layerID = gimp_layer_new(imageID, _("Background"),
                              rii.nImageWidth, rii.nImageHeight, layer_type,
                              100, GIMP_NORMAL_MODE);
-    //gimp_layer_set_visible(layerID, TRUE);
-    //gimp_image_add_layer(imageID, layerID, 0);        
+    gimp_item_set_visible(layerID, TRUE);
     gimp_image_insert_layer(imageID, layerID, -1, 0);        
 
     PBYTE image_data;
@@ -1047,7 +1046,16 @@ gint32 load_image(const string& filename)
     } else {
         image_data = rii.ptrImageArray;
     }
-
+    #define NEW_API 0
+    #if NEW_API
+    // Crashes for unknown reason in
+    // gimp_drawable_get_buffer -> _gimp_tile_backend_plugin_new ->
+    // gimp_drawable_get_format -> babl_format -> babl_db_exist_by_name
+    GeglRectangle rect = {0, 0, rii.nImageWidth, rii.nImageHeight};
+    GeglBuffer *buffer = gimp_drawable_get_buffer(layerID);
+    gegl_buffer_set(buffer, &rect, 0, gimp_drawable_get_format(layerID), image_data, GEGL_AUTO_ROWSTRIDE);
+    gegl_buffer_flush(buffer);
+    #else
     GimpDrawable* drawable;
     GimpPixelRgn pixel_rgn;
     drawable = gimp_drawable_get(layerID);
@@ -1056,15 +1064,21 @@ gint32 load_image(const string& filename)
     gimp_pixel_rgn_set_rect(&pixel_rgn, image_data, 0, 0,
                             rii.nImageWidth, rii.nImageHeight);
     gimp_drawable_flush(drawable);
+    #endif
     // flip "bottom up" image
     if (image_type != GIMP_INDEXED) {
         if (eih.nImageHeight < 0)
-            gimp_flip(drawable->drawable_id, GIMP_ORIENTATION_VERTICAL);
+            gimp_item_transform_flip_simple(drawable->drawable_id, GIMP_ORIENTATION_VERTICAL, true, 0.0);
+            //gimp_flip(drawable->drawable_id, GIMP_ORIENTATION_VERTICAL);
     } else {
         if (eih.nImageHeight > 0)
-            gimp_flip(drawable->drawable_id, GIMP_ORIENTATION_VERTICAL);
+            gimp_item_transform_flip_simple(drawable->drawable_id, GIMP_ORIENTATION_VERTICAL, true, 0.0);
+            //gimp_flip(drawable->drawable_id, GIMP_ORIENTATION_VERTICAL);
     }
+    #if !(NEW_API)
     gimp_drawable_detach(drawable);
+    #endif
+    #undef NEW_API
 
     if (rii.ptrImageArray != image_data)
         delete[] image_data;
@@ -1088,7 +1102,8 @@ gint32 load_image(const string& filename)
 #endif // GIMP_HAVE_PARASITES
 
     if (cmap_size != 0)
-        gimp_image_set_cmap(imageID, cmap, cmap_size);
+        //gimp_image_set_cmap(imageID, cmap, cmap_size);
+        gimp_image_set_colormap(imageID, cmap, cmap_size);
 
     return imageID;
 }

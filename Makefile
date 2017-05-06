@@ -1,4 +1,4 @@
-CXX = g++
+CXX = g++ -g
 RM  = rm -f
 BIN = eriload
 
@@ -18,10 +18,10 @@ clean:
 	$(RM) $(BIN) *.o *.i *.exe *.dll *.a *.base *.exp
 
 eriload: eriload.o extrueri.o
-	$(CXX) -o $@ `gimptool-2.0 --libs` -lstdc++ $(LD_ADD) $^
+	$(CXX) -o $@ `gimptool-2.0 --libs` `pkg-config --libs gegl-0.3` -lstdc++ $(LD_ADD) $^
 
 eriload.o: eriload.cc
-	$(CXX) `gimptool-2.0 --cflags` -DLOCALEDIR=\"`gimptool-2.0 --datadir`/locale\" -c -o $@ $<
+	$(CXX) `gimptool-2.0 --cflags` `pkg-config gegl-0.3 --cflags` -DLOCALEDIR=\"`gimptool-2.0 --datadir`/locale\" -c -o $@ $<
 
 extrueri.o: extrueri.cpp
-	$(CXX) `pkg-config glib-2.0 --cflags` -c -o $@ $<
+	$(CXX) `pkg-config glib-2.0 gegl-0.3 --cflags` -c -o $@ $<
