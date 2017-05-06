@@ -1,11 +1,12 @@
 # gimp-eri
 GIMP plug-in for loading ERI images, updated for recent changes
+in GIMP and toolchain
 
 Originally writen by SAKAI Masahiro <ZVM01052@nifty.ne.jp>
 http://homepage1.nifty.com/susho/software/gimp/eri.html (not available
 anymore)
 -------------------------------------------------------------------------------
-<Original readme>
+# Original readme
 
 This is a plug-in for The GIMP to load ERI.
 It was designed and written by SAKAI Masahiro.
