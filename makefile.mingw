@@ -1,0 +1,56 @@
+## Makefile for building the GIMP plug-ins with gcc on Win32.
+## You should use GNU make running on cygwin.
+## Use: make -f makefile.mingw
+
+# This is what I use as installation target, from where the installer-builder
+# will pick it up.
+DEST = /bin
+
+# Edit it for your top directry of source code.
+TOP = ../../..
+#TOP = /home/susho/src/src
+
+ifndef GIMPTOP
+GIMPTOP = $(TOP)/gimp
+endif
+
+PLUGINDIR = $(GIMPTOP)/plug-ins
+
+include $(TOP)/build/win32/make.mingw
+
+################################################################
+
+#OPTIMIZE = -O2 -Wall
+OPTIMIZE = -O6 -mpentium -Wall -fstrength-reduce -Wno-parentheses -ffast-math -malign-functions=2 -malign-jumps=2 -malign-loops=2
+DEPCFLAGS = -mwindows -I . $(GIMP_CFLAGS) $(GTK_CFLAGS) $(GLIB_CFLAGS) $(INTL_CFLAGS)
+# $(LIBICONV_CFLAGS)
+LIBS = $(GIMP_PLUGIN_LIBS) $(GTK_LIBS) $(GLIB_LIBS) $(INTL_LIBS) -lstdc++
+# $(LIBICONV_LIBS)
+
+ifndef WINDRES
+#WINDRES = i386-mingw32msvc-windres
+WINDRES = windres
+endif
+
+RESOURCE = erires.o
+
+BIN = \
+	eriload.exe
+
+all : $(BIN)
+
+install : $(BIN)
+	cp $(PLUGIN) $(DEST)/plug-ins
+
+eriload.exe: eriload.o extrueri.o $(RESOURCE)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+	strip --strip-unneeded $@
+
+eriload.o: eriload.cc
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+extrueri.o: extrueri.cpp
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+erires.o: eri.rc eri.ico
+	$(WINDRES) -o $@ $<

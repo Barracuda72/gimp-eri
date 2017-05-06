@@ -1,0 +1,36 @@
+May 05th 2017 - Barracuda72
+
+	 * Fixed codebase to compile with recent versions of GIMP and toolchain
+
+Oct 11st 2000 - SAKAI Masahiro
+
+	 * bug fix
+	 * support arithmetic encoding and palette format
+	 * released 0.1.5
+
+Sep 29th 2000 - SAKAI Masahiro
+
+	 * disable compat craft
+	 * released 0.1.4
+
+Sep 23rd 2000 - SAKAI Masahiro
+
+	 * fix up
+	 * release 0.1.3
+
+Sep 22nd 2000 - SAKAI Masahiro
+
+	 * bug fix
+	 * support Win32
+	 * released 0.1.2
+
+Sep 21st 2000 - SAKAI Masahiro
+	 
+	 * changed license to GPL
+	 * added eri.ico
+	 * released 0.1.1
+
+Sep 17th 2000 - SAKAI Masahiro
+
+	 * released 0.1.0
+	
